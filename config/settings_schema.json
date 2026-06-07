@@ -34,6 +34,28 @@
     ]
   },
   {
+    "name": "Product cards",
+    "settings": [
+      {
+        "type": "select",
+        "id": "product_card_style",
+        "label": "Product card style",
+        "info": "Applies to product cards in collection grids, search results, and featured collections.",
+        "options": [
+          {
+            "value": "domaine",
+            "label": "Domaine (swatches, hover image, sale badge)"
+          },
+          {
+            "value": "basic",
+            "label": "Basic (image, title, price)"
+          }
+        ],
+        "default": "domaine"
+      }
+    ]
+  },
+  {
     "name": "Social media",
     "settings": [
       {
