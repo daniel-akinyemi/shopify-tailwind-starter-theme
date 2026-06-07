@@ -17,12 +17,14 @@
   assets/domaine-product-card.js. The hover image-swap is pure Tailwind
   (group-hover), so no custom CSS is added — Tailwind remains the only stylesheet.
 
-  IMAGE PAIRING ASSUMPTION
-  ------------------------
-  Each colour's PRIMARY image is the variant's featured image. Its SECONDARY
-  (hover) image is taken as the NEXT image after it in the product's gallery
-  (i.e. images are uploaded as front/back pairs per colour). To pair by alt text
-  instead, change the two blocks marked `SECONDARY IMAGE` below.
+  IMAGE CONVENTION
+  ----------------
+  Images are matched to a colour by the colour name appearing in each image's
+  ALT text (case-insensitive). For a given colour, the FIRST matching image is
+  the primary (shown by default) and the SECOND matching image is the secondary
+  (shown on hover). If a colour has no matching alt text, it falls back to the
+  variant's featured image, then the product's featured image. See the two
+  blocks marked `IMAGES` below.
 {%- endcomment -%}
 
 {%- liquid
@@ -48,16 +50,24 @@
     assign initial_color = cv.options[color_index]
   endif
 
-  assign init_primary = cv.featured_image | default: product.featured_image
-
-  # SECONDARY IMAGE (initial): next image in the gallery after the primary.
-  assign init_secondary = init_primary
-  assign init_pos = init_primary.position
-  if init_pos and init_pos < product.images.size
-    assign init_secondary = product.images[init_pos]
-  elsif product.images.size > 1
-    assign init_secondary = product.images[1]
-  endif
+  # IMAGES (initial): match by the color name in each image's ALT text.
+  # For a colour, the FIRST matching image is primary, the SECOND is secondary.
+  assign init_primary = null
+  assign init_secondary = null
+  assign init_color_lower = initial_color | downcase
+  for img in product.images
+    assign alt_lower = img.alt | downcase
+    if init_color_lower != blank and alt_lower contains init_color_lower
+      if init_primary == null
+        assign init_primary = img
+      elsif init_secondary == null
+        assign init_secondary = img
+        break
+      endif
+    endif
+  endfor
+  assign init_primary = init_primary | default: cv.featured_image | default: product.featured_image
+  assign init_secondary = init_secondary | default: init_primary
 
   assign init_on_sale = false
   if cv.compare_at_price and cv.compare_at_price > cv.price
@@ -129,23 +139,63 @@
             endfor
           endif
 
-          assign s_primary = vx.featured_image | default: product.featured_image
-
-          # SECONDARY IMAGE (per colour): next image after the primary.
-          assign s_secondary = s_primary
-          assign s_pos = s_primary.position
-          if s_pos and s_pos < product.images.size
-            assign s_secondary = product.images[s_pos]
-          elsif product.images.size > 1
-            assign s_secondary = product.images[1]
-          endif
+          # IMAGES (per colour): match by the colour name in each image's ALT
+          # text. First match = primary, second match = secondary (hover).
+          assign s_primary = null
+          assign s_secondary = null
+          assign s_color_lower = value_name | downcase
+          for img in product.images
+            assign alt_lower = img.alt | downcase
+            if s_color_lower != blank and alt_lower contains s_color_lower
+              if s_primary == null
+                assign s_primary = img
+              elsif s_secondary == null
+                assign s_secondary = img
+                break
+              endif
+            endif
+          endfor
+          assign s_primary = s_primary | default: vx.featured_image | default: product.featured_image
+          assign s_secondary = s_secondary | default: s_primary
 
           assign s_on_sale = false
           if vx.compare_at_price and vx.compare_at_price > vx.price
             assign s_on_sale = true
           endif
 
-          assign swatch_color = value.swatch.color | default: value_name | downcase
+          # Swatch dot colour. Priority: Shopify's native swatch (set in admin) →
+          # exact-hex map below → the colour name as a CSS colour → neutral grey.
+          # Add your product's colour names here to control them precisely.
+          assign swatch_color = value.swatch.color
+          if swatch_color == blank
+            assign color_key = value_name | downcase | strip
+            case color_key
+              when 'orange'
+                assign swatch_color = '#FF6633'
+              when 'green'
+                assign swatch_color = '#006600'
+              when 'kiwi'
+                assign swatch_color = '#8DB600'
+              when 'blue'
+                assign swatch_color = '#00639C'
+              when 'royal', 'royal blue'
+                assign swatch_color = '#00539C'
+              when 'navy'
+                assign swatch_color = '#19264B'
+              when 'yellow'
+                assign swatch_color = '#FCE78D'
+              when 'pink'
+                assign swatch_color = '#FFCCFF'
+              when 'red'
+                assign swatch_color = '#FF0000'
+              when 'black'
+                assign swatch_color = '#111111'
+              when 'white'
+                assign swatch_color = '#FFFFFF'
+              else
+                assign swatch_color = value_name | downcase | default: '#D4D4D4'
+            endcase
+          endif
 
           assign is_selected = false
           if value_name == initial_color
@@ -166,7 +216,7 @@
           aria-pressed="{% if is_selected %}true{% else %}false{% endif %}"
           title="{{ value_name | escape }}"
           style="background-color: {{ swatch_color }};"
-          class="relative h-5 w-5 shrink-0 rounded-full {% if is_selected %}ring-1 ring-offset-2 ring-offset-white ring-[#0A4874]{% endif %}"
+          class="relative h-5 w-5 shrink-0 rounded-full border border-black/10 {% if is_selected %}ring-1 ring-offset-2 ring-offset-white ring-[#0A4874]{% endif %}"
         >
           <span class="sr-only">{{ value_name }}</span>
         </button>
@@ -184,7 +234,7 @@
       {{ product.title }}
     </a>
 
-    <div data-price class="flex items-center gap-2 text-sm">
+    <div data-price-display class="flex items-center gap-2 text-sm">
       {%- if init_on_sale -%}
         <s class="text-[#111111] line-through">{{ cv.compare_at_price | money }}</s>
         <span class="text-red-600">{{ cv.price | money }}</span>
