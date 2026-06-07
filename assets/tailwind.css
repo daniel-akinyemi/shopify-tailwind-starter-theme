@@ -21,6 +21,7 @@
 @source "../snippets/**/*.liquid";
 @source "../blocks/**/*.liquid";
 @source "../templates/**/*.{liquid,json}";
+@source "./**/*.js";
 
 /* Design tokens. Edit these to rebrand the theme. Tailwind generates matching
    utilities automatically (e.g. `bg-brand`, `font-sans`). */
