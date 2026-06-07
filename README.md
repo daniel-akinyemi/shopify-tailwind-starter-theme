@@ -6,7 +6,7 @@ A minimal **Shopify Online Store 2.0** theme where **Tailwind CSS v4 is the only
 
 ```
 assets/tailwind.css   →  tailwindcss CLI  →  assets/application.css  →  layout/theme.liquid
-   (you edit)            (build step)         (generated, ignored)       (loads it)
+   (you edit)            (build step)         (committed, auto-built)    (loads it)
 ```
 
 - Both the source and the compiled output live in `assets/` to stay within Shopify's standard folder structure (no non-standard top-level `src/` folder).
