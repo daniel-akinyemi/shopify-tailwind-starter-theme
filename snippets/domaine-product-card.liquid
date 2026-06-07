@@ -65,12 +65,12 @@
   endif
 -%}
 
-<domaine-product-card class="flex w-full max-w-[369px] flex-col gap-[15px] font-sans">
+<domaine-product-card class="group flex w-full max-w-[369px] flex-col gap-[15px] font-sans">
   {%- comment -%} ---- Image (primary + secondary crossfade on hover) ---- {%- endcomment -%}
   <a
     href="{{ cv.url | default: product.url }}"
     data-card-link
-    class="group relative block aspect-[315/340] overflow-hidden rounded-[10px] border border-[#E8E8E8] bg-white"
+    class="relative block aspect-[315/340] overflow-hidden rounded-[10px] border border-[#E8E8E8] bg-white"
   >
     {%- if init_primary -%}
       <img
@@ -89,6 +89,8 @@
         src="{{ init_secondary | image_url: width: 800 }}"
         alt=""
         aria-hidden="true"
+        width="{{ init_secondary.width }}"
+        height="{{ init_secondary.height }}"
         loading="lazy"
         class="absolute inset-0 h-full w-full object-contain p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
       >
