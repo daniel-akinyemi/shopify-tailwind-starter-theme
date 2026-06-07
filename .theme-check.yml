@@ -1,0 +1,9 @@
+# Shopify Theme Check configuration
+# https://shopify.dev/docs/themes/tools/theme-check
+root: "."
+
+extends: "theme-check:recommended"
+
+ignore:
+  - node_modules/
+  - assets/tailwind.css

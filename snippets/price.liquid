@@ -1,0 +1,40 @@
+{%- comment -%}
+  Renders a product price with sale / compare-at handling.
+
+  Accepts:
+  - product_or_variant {Object} - a product or variant object
+  - class {String} - optional extra classes for the wrapper
+
+  Usage:
+  {% render 'price', product_or_variant: product %}
+{%- endcomment -%}
+
+{%- liquid
+  if product_or_variant == nil
+    assign product_or_variant = product
+  endif
+
+  assign price = product_or_variant.price | default: 0
+  assign compare_at = product_or_variant.compare_at_price
+  assign on_sale = false
+  if compare_at and compare_at > price
+    assign on_sale = true
+  endif
+-%}
+
+<div class="flex items-baseline gap-2 {{ class }}">
+  <span class="font-medium {% if on_sale %}text-red-600{% else %}text-gray-900{% endif %}">
+    {%- if product_or_variant.price_varies -%}
+      {{ 'products.product.from_price' | t: price: price | money }}
+    {%- else -%}
+      {{ price | money }}
+    {%- endif -%}
+  </span>
+
+  {%- if on_sale -%}
+    <s class="text-sm text-gray-500">{{ compare_at | money }}</s>
+    <span class="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">
+      {{ 'products.product.on_sale' | t }}
+    </span>
+  {%- endif -%}
+</div>

@@ -1,0 +1,16 @@
+{
+  "name": "shopify-tailwind-starter-theme",
+  "version": "1.0.0",
+  "description": "A minimal Shopify Online Store 2.0 starter theme where Tailwind CSS is the only stylesheet.",
+  "scripts": {
+    "dev": "concurrently --kill-others --names \"tw,shopify\" --prefix-colors \"cyan,magenta\" \"npm:tw:watch\" \"npm:shopify:dev\"",
+    "tw:watch": "tailwindcss -i ./assets/tailwind.css -o ./assets/application.css --watch",
+    "tw:build": "tailwindcss -i ./assets/tailwind.css -o ./assets/application.css --minify",
+    "shopify:dev": "shopify theme dev",
+    "build": "npm run tw:build"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
+    "concurrently": "^9.1.0"
+  }
+}

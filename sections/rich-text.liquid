@@ -1,0 +1,32 @@
+<section class="mx-auto max-w-3xl px-4 py-16 text-center">
+  {%- if section.settings.heading != blank -%}
+    <h2 class="text-3xl font-bold tracking-tight text-gray-900">{{ section.settings.heading }}</h2>
+  {%- endif -%}
+  {%- if section.settings.text != blank -%}
+    <div class="mt-4 text-lg leading-relaxed text-gray-600">{{ section.settings.text }}</div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Rich text",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Talk about your brand"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Use this section to share your story, values, or anything else worth telling your customers.</p>"
+    }
+  ],
+  "presets": [
+    { "name": "Rich text" }
+  ]
+}
+{% endschema %}

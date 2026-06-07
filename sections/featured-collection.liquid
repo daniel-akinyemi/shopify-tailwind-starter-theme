@@ -1,0 +1,68 @@
+{%- assign collection = collections[section.settings.collection] -%}
+
+<section class="mx-auto max-w-7xl px-4 py-16">
+  <div class="mb-8 flex items-end justify-between gap-4">
+    <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ section.settings.heading }}</h2>
+    {%- if collection != blank -%}
+      <a href="{{ collection.url }}" class="text-sm font-medium text-brand hover:underline">{{ section.settings.view_all_label }}</a>
+    {%- endif -%}
+  </div>
+
+  {%- if collection != blank and collection.products.size > 0 -%}
+    <div class="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+      {%- for product in collection.products limit: section.settings.products_to_show -%}
+        {% render 'product-card', product: product %}
+      {%- endfor -%}
+    </div>
+  {%- else -%}
+    <div class="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+      {%- for i in (1..4) -%}
+        <div>
+          <div class="overflow-hidden rounded-lg bg-gray-100">
+            {{ 'product-1' | placeholder_svg_tag: 'aspect-square w-full text-gray-300' }}
+          </div>
+          <p class="mt-3 text-sm font-medium text-gray-900">Example product</p>
+          <p class="text-sm text-gray-500">$19.99</p>
+        </div>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Featured collection",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Featured products"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "label": "Products to show",
+      "default": 4
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "“View all” label",
+      "default": "View all"
+    }
+  ],
+  "presets": [
+    { "name": "Featured collection" }
+  ]
+}
+{% endschema %}

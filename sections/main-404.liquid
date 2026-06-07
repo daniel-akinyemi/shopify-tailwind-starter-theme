@@ -1,0 +1,16 @@
+<section class="mx-auto flex max-w-xl flex-col items-center px-4 py-24 text-center">
+  <p class="text-base font-semibold text-brand">404</p>
+  <h1 class="mt-4 text-3xl font-bold tracking-tight text-gray-900">{{ 'general.404.title' | t }}</h1>
+  <p class="mt-3 text-gray-600">{{ 'general.404.subtext' | t }}</p>
+  <a href="{{ routes.root_url }}" class="mt-8 rounded-lg bg-brand px-6 py-3 text-sm font-semibold text-white hover:bg-brand-dark">
+    {{ 'general.404.continue_shopping' | t }}
+  </a>
+</section>
+
+{% schema %}
+{
+  "name": "404",
+  "tag": "section",
+  "settings": []
+}
+{% endschema %}

@@ -1,0 +1,40 @@
+/* ---------------------------------------------------------------------------
+   Tailwind CSS v4 source file.
+
+   This is the source you edit. The Tailwind CLI compiles it into
+   `assets/application.css` (the file `layout/theme.liquid` actually loads).
+   No other CSS (no Dawn base.css, no vendor stylesheets) exists in the theme.
+
+   NOTE: Both this source and the compiled output live in `assets/` to stay
+   within Shopify's standard folder structure. Shopify will upload this source
+   file to its CDN too, but no page ever references it — only the compiled
+   `application.css` is loaded. Never let the input/output filenames collide.
+--------------------------------------------------------------------------- */
+
+@import "tailwindcss";
+
+/* Tailwind v4 auto-detects sources, but `.liquid` is not a recognized template
+   extension, so we register the theme folders explicitly. Paths are relative to
+   this file (assets/). */
+@source "../layout/**/*.liquid";
+@source "../sections/**/*.liquid";
+@source "../snippets/**/*.liquid";
+@source "../blocks/**/*.liquid";
+@source "../templates/**/*.{liquid,json}";
+
+/* Design tokens. Edit these to rebrand the theme. Tailwind generates matching
+   utilities automatically (e.g. `bg-brand`, `font-sans`). */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --color-brand: oklch(0.55 0.2 264);
+  --color-brand-dark: oklch(0.45 0.2 264);
+}
+
+/* A couple of project-wide base tweaks. Keep this minimal — prefer utilities in
+   markup over custom CSS. */
+@layer base {
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand;
+  }
+}
