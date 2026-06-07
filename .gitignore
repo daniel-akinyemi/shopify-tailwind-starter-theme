@@ -3,8 +3,9 @@ node_modules/
 
 # NOTE: assets/application.css (the compiled Tailwind output) is intentionally
 # committed. This theme deploys via Shopify's GitHub integration, which has no
-# build step, so the compiled stylesheet must live in the repo. Rebuild it with
-# `npm run build` and commit the result whenever styles change.
+# build step, so the compiled stylesheet must live in the repo. The
+# "Build Tailwind CSS" GitHub Action rebuilds and commits it automatically on
+# push; you normally only edit assets/tailwind.css and .liquid files.
 
 # Shopify CLI
 .shopify/

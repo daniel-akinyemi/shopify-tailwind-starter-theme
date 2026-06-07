@@ -1,0 +1,58 @@
+name: Build Tailwind CSS
+
+# Rebuilds assets/application.css whenever theme source changes, then commits
+# the result back to the branch. Shopify's GitHub integration deploys repo files
+# as-is (no build step), so the compiled stylesheet must always be kept in sync.
+#
+# No-loop guarantee: this workflow only triggers on changes to the SOURCE files
+# below. The auto-commit it makes touches only assets/application.css, which is
+# excluded from the triggers, so the bot's own commit never re-triggers it.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "assets/tailwind.css"
+      - "layout/**/*.liquid"
+      - "sections/**/*.liquid"
+      - "snippets/**/*.liquid"
+      - "blocks/**/*.liquid"
+      - "templates/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/build-css.yml"
+
+# Let a newer push supersede an in-progress build on the same branch.
+concurrency:
+  group: build-css-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Tailwind CSS
+        run: npm run build
+
+      - name: Commit compiled stylesheet if it changed
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: rebuild application.css [skip ci]"
+          file_pattern: assets/application.css
+          commit_user_name: github-actions[bot]
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com

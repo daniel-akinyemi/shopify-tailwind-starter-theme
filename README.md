@@ -38,9 +38,23 @@ npm run dev
 
 The first time you run it, the Shopify CLI will prompt you to log in and pick a store.
 
-## Building for production / deploying
+## Deploying (Shopify GitHub integration)
 
-The compiled CSS is **git-ignored** because it is a build artifact. Always build before pushing:
+This theme deploys through Shopify's **GitHub integration** (Online Store → Themes → Add from GitHub). Shopify serves the repo files directly and has **no build step**, so the compiled `assets/application.css` must be committed to the repo.
+
+You don't build it by hand. The **`Build Tailwind CSS` GitHub Action** ([.github/workflows/build-css.yml](.github/workflows/build-css.yml)) handles it:
+
+1. You edit `.liquid` files and/or `assets/tailwind.css` and push to `main`.
+2. The Action rebuilds `assets/application.css` and commits it back to `main`.
+3. Shopify's GitHub integration syncs the new commit to your store.
+
+So the normal contributor flow is just: **edit → commit source → push**. The compiled CSS stays in sync automatically.
+
+> Editing `assets/application.css` by hand is pointless — the Action overwrites it on the next push.
+
+### Deploying manually instead (optional)
+
+If you prefer to push from your machine with the Shopify CLI, build first so the compiled file is current:
 
 ```bash
 npm run build          # minified assets/application.css
@@ -52,7 +66,7 @@ shopify theme push     # upload the theme to your store
 | Path | Purpose |
 | --- | --- |
 | `assets/tailwind.css` | Tailwind source + design tokens (`@theme`). The only file you edit for global styles. |
-| `assets/application.css` | Compiled output (generated, ignored). |
+| `assets/application.css` | Compiled output. Committed and auto-rebuilt by CI — don't edit by hand. |
 | `layout/theme.liquid` | Root layout. Loads the compiled CSS. |
 | `sections/` | Section files, including `header-group.json` / `footer-group.json` and all `main-*` sections. |
 | `snippets/` | Reusable partials (`product-card`, `price`). |
