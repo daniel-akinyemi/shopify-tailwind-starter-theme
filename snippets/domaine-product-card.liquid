@@ -216,7 +216,7 @@
           aria-pressed="{% if is_selected %}true{% else %}false{% endif %}"
           title="{{ value_name | escape }}"
           style="background-color: {{ swatch_color }};"
-          class="relative h-5 w-5 shrink-0 rounded-full border border-black/10 {% if is_selected %}ring-1 ring-offset-2 ring-offset-white ring-[#0A4874]{% endif %}"
+          class="relative h-5 w-5 shrink-0 rounded-full border border-black/10 {% if is_selected %}ring-1 ring-offset-2 ring-offset-white ring-[#0A4874]{% endif %} cursor-pointer"
         >
           <span class="sr-only">{{ value_name }}</span>
         </button>
