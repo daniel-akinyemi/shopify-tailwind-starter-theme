@@ -17,7 +17,7 @@
   {%- if search.performed -%}
     {%- if search.results_count > 0 -%}
       <p class="mt-8 text-sm text-gray-500">{{ 'general.search.results_with_count' | t: count: search.results_count }}</p>
-      <div class="mt-6 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+      <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {%- for item in search.results -%}
           {%- if item.object_type == 'product' -%}
             {% render 'product-card', product: item %}
