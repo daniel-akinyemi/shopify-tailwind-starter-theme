@@ -121,7 +121,7 @@
 
   {%- comment -%} ---- Colour swatches ---- {%- endcomment -%}
   {%- if has_colors -%}
-    <div class="flex flex-wrap items-center gap-[5px]" role="group" aria-label="{{ color_option.name | escape }}">
+    <div class="flex flex-wrap items-center gap-2" role="group" aria-label="{{ color_option.name | escape }}">
       {%- for value in color_option.values -%}
         {%- liquid
           capture value_name
