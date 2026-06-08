@@ -11,6 +11,7 @@
   "sections": {
     "image-banner": {
       "type": "image-banner",
+      "disabled": true,
       "settings": {
         "heading": "Welcome to the store",
         "subheading": "Built with Tailwind CSS, nothing else.",
@@ -29,6 +30,7 @@
     },
     "rich-text": {
       "type": "rich-text",
+      "disabled": true,
       "settings": {
         "heading": "Talk about your brand",
         "text": "<p>Use this section to share your story, values, or anything else worth telling your customers.</p>"
