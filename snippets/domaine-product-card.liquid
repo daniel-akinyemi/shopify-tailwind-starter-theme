@@ -75,12 +75,12 @@
   endif
 -%}
 
-<domaine-product-card class="group flex w-full max-w-[369px] flex-col gap-[15px] font-sans">
+<domaine-product-card class="flex w-full max-w-[369px] flex-col gap-[15px] font-sans">
   {%- comment -%} ---- Image (primary + secondary crossfade on hover) ---- {%- endcomment -%}
   <a
     href="{{ cv.url | default: product.url }}"
     data-card-link
-    class="relative block aspect-[315/340] overflow-hidden rounded-[10px] border border-[#E8E8E8] bg-white"
+    class="group relative block aspect-[315/340] overflow-hidden rounded-[10px] border border-[#E8E8E8] bg-white"
   >
     {%- if init_primary -%}
       <img
