@@ -1,0 +1,248 @@
+{%- comment -%}
+  Domaine product card.
+
+  An interactive product card that lets a customer:
+    - see an on-sale badge + markdown pricing when the variant is on sale,
+    - click colour swatches to swap to that colour's imagery,
+    - hover the card to reveal a secondary image for the selected variant,
+    - read the brand (vendor), title, and pricing.
+
+  Accepts:
+    - product {Object} - the product to render (required)
+
+  Usage:
+    {% render 'domaine-product-card', product: product %}
+
+  Interactivity is handled by the `<domaine-product-card>` web component in
+  assets/domaine-product-card.js. The hover image-swap is pure Tailwind
+  (group-hover), so no custom CSS is added — Tailwind remains the only stylesheet.
+
+  IMAGE CONVENTION
+  ----------------
+  Images are matched to a colour by the colour name appearing in each image's
+  ALT text (case-insensitive). For a given colour, the FIRST matching image is
+  the primary (shown by default) and the SECOND matching image is the secondary
+  (shown on hover). If a colour has no matching alt text, it falls back to the
+  variant's featured image, then the product's featured image. See the two
+  blocks marked `IMAGES` below.
+{%- endcomment -%}
+
+{%- liquid
+  # Find the colour option (named "Color"/"Colour"); fall back to no swatches.
+  assign color_option = null
+  for opt in product.options_with_values
+    assign opt_name = opt.name | downcase
+    if opt_name contains 'color' or opt_name contains 'colour'
+      assign color_option = opt
+      break
+    endif
+  endfor
+
+  assign has_colors = false
+  if color_option and color_option.values.size > 0
+    assign has_colors = true
+    assign color_index = color_option.position | minus: 1
+  endif
+
+  # Initial state comes from the selected/first available variant.
+  assign cv = product.selected_or_first_available_variant
+  if has_colors
+    assign initial_color = cv.options[color_index]
+  endif
+
+  # IMAGES (initial): match by the color name in each image's ALT text.
+  # For a colour, the FIRST matching image is primary, the SECOND is secondary.
+  assign init_primary = null
+  assign init_secondary = null
+  assign init_color_lower = initial_color | downcase
+  for img in product.images
+    assign alt_lower = img.alt | downcase
+    if init_color_lower != blank and alt_lower contains init_color_lower
+      if init_primary == null
+        assign init_primary = img
+      elsif init_secondary == null
+        assign init_secondary = img
+        break
+      endif
+    endif
+  endfor
+  assign init_primary = init_primary | default: cv.featured_image | default: product.featured_image
+  assign init_secondary = init_secondary | default: init_primary
+
+  assign init_on_sale = false
+  if cv.compare_at_price and cv.compare_at_price > cv.price
+    assign init_on_sale = true
+  endif
+-%}
+
+<domaine-product-card class="flex w-full max-w-[369px] flex-col gap-[15px] font-sans">
+  {%- comment -%} ---- Image (primary + secondary crossfade on hover) ---- {%- endcomment -%}
+  <a
+    href="{{ cv.url | default: product.url }}"
+    data-card-link
+    class="group relative block aspect-[315/340] overflow-hidden rounded-[10px] border border-[#E8E8E8] bg-white"
+  >
+    {%- if init_primary -%}
+      <img
+        data-primary-image
+        src="{{ init_primary | image_url: width: 800 }}"
+        srcset="{{ init_primary | image_url: width: 400 }} 400w, {{ init_primary | image_url: width: 800 }} 800w"
+        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 90vw"
+        alt="{{ init_primary.alt | default: product.title | escape }}"
+        width="{{ init_primary.width }}"
+        height="{{ init_primary.height }}"
+        loading="lazy"
+        class="absolute inset-0 h-full w-full object-contain p-5 transition-opacity duration-300 group-hover:opacity-0"
+      >
+      <img
+        data-secondary-image
+        src="{{ init_secondary | image_url: width: 800 }}"
+        alt=""
+        aria-hidden="true"
+        width="{{ init_secondary.width }}"
+        height="{{ init_secondary.height }}"
+        loading="lazy"
+        class="absolute inset-0 h-full w-full object-contain p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+      >
+    {%- else -%}
+      <div class="absolute inset-0 flex items-center justify-center text-gray-300">
+        {{ 'product-1' | placeholder_svg_tag: 'h-1/2 w-1/2' }}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} On-sale badge {%- endcomment -%}
+    <span
+      data-badge
+      class="pointer-events-none absolute left-5 top-5 inline-flex items-center rounded-full border border-[#FF0000] px-3 py-1 text-[15px] leading-none text-[#FF0000] {% unless init_on_sale %}hidden{% endunless %}"
+    >
+      {{ 'products.product.on_sale' | t }}
+    </span>
+  </a>
+
+  {%- comment -%} ---- Colour swatches ---- {%- endcomment -%}
+  {%- if has_colors -%}
+    <div class="flex flex-wrap items-center gap-2" role="group" aria-label="{{ color_option.name | escape }}">
+      {%- for value in color_option.values -%}
+        {%- liquid
+          capture value_name
+            echo value
+          endcapture
+
+          # Representative variant for this colour.
+          assign vx = value.variant
+          if vx == nil
+            for variant in product.variants
+              if variant.options[color_index] == value_name
+                assign vx = variant
+                break
+              endif
+            endfor
+          endif
+
+          # IMAGES (per colour): match by the colour name in each image's ALT
+          # text. First match = primary, second match = secondary (hover).
+          assign s_primary = null
+          assign s_secondary = null
+          assign s_color_lower = value_name | downcase
+          for img in product.images
+            assign alt_lower = img.alt | downcase
+            if s_color_lower != blank and alt_lower contains s_color_lower
+              if s_primary == null
+                assign s_primary = img
+              elsif s_secondary == null
+                assign s_secondary = img
+                break
+              endif
+            endif
+          endfor
+          assign s_primary = s_primary | default: vx.featured_image | default: product.featured_image
+          assign s_secondary = s_secondary | default: s_primary
+
+          assign s_on_sale = false
+          if vx.compare_at_price and vx.compare_at_price > vx.price
+            assign s_on_sale = true
+          endif
+
+          # Swatch dot colour. Priority: Shopify's native swatch (set in admin) →
+          # exact-hex map below → the colour name as a CSS colour → neutral grey.
+          # Add your product's colour names here to control them precisely.
+          assign swatch_color = value.swatch.color
+          if swatch_color == blank
+            assign color_key = value_name | downcase | strip
+            case color_key
+              when 'orange'
+                assign swatch_color = '#FF6633'
+              when 'green'
+                assign swatch_color = '#006600'
+              when 'kiwi'
+                assign swatch_color = '#8DB600'
+              when 'blue'
+                assign swatch_color = '#00639C'
+              when 'royal', 'royal blue'
+                assign swatch_color = '#00539C'
+              when 'navy'
+                assign swatch_color = '#19264B'
+              when 'yellow'
+                assign swatch_color = '#FCE78D'
+              when 'pink'
+                assign swatch_color = '#FFCCFF'
+              when 'red'
+                assign swatch_color = '#FF0000'
+              when 'black'
+                assign swatch_color = '#111111'
+              when 'white'
+                assign swatch_color = '#FFFFFF'
+              else
+                assign swatch_color = value_name | downcase | default: '#D4D4D4'
+            endcase
+          endif
+
+          assign is_selected = false
+          if value_name == initial_color
+            assign is_selected = true
+          endif
+        -%}
+        <button
+          type="button"
+          data-swatch
+          data-color="{{ value_name | escape }}"
+          data-url="{{ vx.url | default: product.url }}"
+          data-primary="{{ s_primary | image_url: width: 800 }}"
+          data-secondary="{{ s_secondary | image_url: width: 800 }}"
+          data-price="{{ vx.price | money | escape }}"
+          data-on-sale="{% if s_on_sale %}true{% else %}false{% endif %}"
+          {% if s_on_sale %}data-compare="{{ vx.compare_at_price | money | escape }}"{% endif %}
+          aria-label="{{ value_name | escape }}"
+          aria-pressed="{% if is_selected %}true{% else %}false{% endif %}"
+          title="{{ value_name | escape }}"
+          style="background-color: {{ swatch_color }};"
+          class="relative h-5 w-5 shrink-0 rounded-full border border-black/10 {% if is_selected %}ring-1 ring-offset-2 ring-offset-white ring-[#0A4874]{% endif %} cursor-pointer"
+        >
+          <span class="sr-only">{{ value_name }}</span>
+        </button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} ---- Brand / title / price ---- {%- endcomment -%}
+  <div class="flex flex-col gap-1.5">
+    {%- if product.vendor != blank -%}
+      <p class="text-sm leading-4 text-[#111111]">{{ product.vendor }}</p>
+    {%- endif -%}
+
+    <a href="{{ cv.url | default: product.url }}" data-card-link class="text-base font-medium leading-[18px] text-[#0A4874]">
+      {{ product.title }}
+    </a>
+
+    <div data-price-display class="flex items-center gap-2 text-sm">
+      {%- if init_on_sale -%}
+        <s class="text-[#111111] line-through">{{ cv.compare_at_price | money }}</s>
+        <span class="text-red-600">{{ cv.price | money }}</span>
+      {%- else -%}
+        <span class="text-[#111111]">{{ cv.price | money }}</span>
+      {%- endif -%}
+    </div>
+  </div>
+</domaine-product-card>
+
+<script src="{{ 'domaine-product-card.js' | asset_url }}" defer></script>
