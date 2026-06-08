@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "image-banner": {
@@ -5,20 +14,30 @@
       "settings": {
         "heading": "Welcome to the store",
         "subheading": "Built with Tailwind CSS, nothing else.",
-        "button_label": "Shop now"
+        "button_label": "Shop now",
+        "button_link": ""
       }
     },
     "featured-collection": {
       "type": "featured-collection",
       "settings": {
         "heading": "Featured products",
-        "products_to_show": 4
+        "collection": "frontpage",
+        "products_to_show": 4,
+        "view_all_label": "View all"
       }
     },
     "rich-text": {
       "type": "rich-text",
-      "settings": {}
+      "settings": {
+        "heading": "Talk about your brand",
+        "text": "<p>Use this section to share your story, values, or anything else worth telling your customers.</p>"
+      }
     }
   },
-  "order": ["image-banner", "featured-collection", "rich-text"]
+  "order": [
+    "image-banner",
+    "featured-collection",
+    "rich-text"
+  ]
 }
